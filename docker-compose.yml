@@ -1,66 +1,51 @@
+version: '3.8'
 
 services:
   raspberry_pi_node_1:
     build: .
     container_name: raspberry_pi_node_1
-    command: python /app/model_pipeline.py
+    command: python /app/client_code/model_pipeline.py
     environment:
       - NODE_ROLE=node1
       - PYTHONUNBUFFERED=1
       - IP_NODE_2=raspberry_pi_node_2
       - IP_NODE_3=raspberry_pi_node_3
     volumes:
-      - ./client_code:/app
-      - ./data:/app/data
+      - .:/app
     networks:
       - cluster_network
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2G
 
   raspberry_pi_node_2:
     build: .
     container_name: raspberry_pi_node_2
-    command: python /app/model_pipeline.py
+    command: python /app/client_code/model_pipeline.py
     environment:
       - NODE_ROLE=node2
+      - PYTHONUNBUFFERED=1
       - IP_NODE_2=raspberry_pi_node_2
       - IP_NODE_3=raspberry_pi_node_3
     ports:
       - "5000:5000"
     volumes:
-      - ./client_code:/app
-      - ./data:/app/data
+      - .:/app
     networks:
       - cluster_network
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2G
 
   raspberry_pi_node_3:
     build: .
     container_name: raspberry_pi_node_3
-    command: python /app/model_pipeline.py
+    command: python /app/client_code/model_pipeline.py
     environment:
       - NODE_ROLE=node3
+      - PYTHONUNBUFFERED=1
       - IP_NODE_2=raspberry_pi_node_2
       - IP_NODE_3=raspberry_pi_node_3
     ports:
       - "5001:5000"
     volumes:
-      - ./client_code:/app
-      - ./data:/app/data
+      - .:/app
     networks:
       - cluster_network
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2G
 
 networks:
   cluster_network:

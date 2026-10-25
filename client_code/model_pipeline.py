@@ -41,7 +41,7 @@ PORT = int(os.getenv("PORT", 5000))
 CHECKPOINT_DIR = os.getenv("CHECKPOINT_DIR", "./data/checkpoints")
 DATASET_DIR = os.getenv("DATASET_DIR", "./data")
 LOG_INTERVAL = int(os.getenv("LOG_INTERVAL", 100))  # Mặc định in log mỗi 100 batch
-
+MAX_BATCHES = int(os.getenv("MAX_BATCHES", 500))
 # -----------------------------------------------------------------------------
 # 2. KHỞI TẠO MÔ HÌNH MOBILENETV3-SMALL & CÁC LAYER PHÂN TÁN
 # -----------------------------------------------------------------------------
@@ -277,6 +277,11 @@ def run_node_1():
         running_loss = 0.0
 
         for i, (images, labels) in enumerate(trainloader):
+            # --- ĐOẠN CODE KIỂM TRA GIỚI HẠN TEST NHANH ---
+            if 'MAX_BATCHES' in globals() and MAX_BATCHES > 0 and i >= MAX_BATCHES:
+                print(f"  [Node 1] Đã đạt giới hạn test nhanh ({MAX_BATCHES} batches). Dừng sớm epoch này.", flush=True)
+                break
+            # ---------------------------------------------
             batch_start = time.time()
             images, labels = images.to(DEVICE), labels.to(DEVICE)
             try:
@@ -309,15 +314,15 @@ def run_node_1():
                     total_correct += correct_batch
                     total_samples += total_batch
                     running_loss += loss_batch
-                    """
+                    
                     # In log mỗi LOG_INTERVAL batch
                     if (i + 1) % LOG_INTERVAL == 0 or (i + 1) == len(trainloader):
                         avg_loss = running_loss / (i + 1)
                         current_acc = (total_correct / total_samples) * 100
                         batch_time = (time.time() - batch_start) * 1000
                         print(f"  [NODE1] Epoch [{epoch+1}/{TOTAL_EPOCHS}] | Batch [{i+1}/{len(trainloader)}] | "
-                              f"Loss TB: {avg_loss:.4f} | Accuracy: {current_acc:.2f}% | Latency: {batch_time:.1f}ms", flush=True)
-                    """
+                              f"Avg Loss: {avg_loss:.4f} | Accuracy: {current_acc:.2f}% | Latency: {batch_time:.1f}ms", flush=True)
+                    
                 else:
                     print(f"  [NODE1 Warning] Response error at batch {i+1}: {resp_data}", flush=True)
                 

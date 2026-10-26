@@ -181,8 +181,10 @@ if NODE_ROLE in ["node2", "node3"]:
                     
                     if current_count % LOG_INTERVAL == 0:
                         avg_loss = interval_loss_sum / LOG_INTERVAL
-                        print(f"[NODE2] Progress: {current_count} batches | Avg Loss: {avg_loss:.4f} | Latency: {elapsed:.2f}ms", flush=True)
+                        print(f"[NODE2] Progress: {current_count} batches | Avg Loss ({LOG_INTERVAL} steps): {avg_loss:.4f} | Latency: {elapsed:.2f}ms", flush=True)
                         interval_loss_sum = 0.0
+                    elif current_count == 1:
+                        print(f"[NODE2] Progress: {current_count} batches | Loss: {batch_loss:.4f} | First Latency: {elapsed:.2f}ms", flush=True)
 
                 return jsonify({
                     "status": "success",
@@ -218,8 +220,10 @@ if NODE_ROLE in ["node2", "node3"]:
                     
                     if current_count % LOG_INTERVAL == 0:
                         avg_loss = interval_loss_sum / LOG_INTERVAL
-                        print(f"[NODE3] Progress: {current_count} batches | Avg Loss: {avg_loss:.4f} | Correct: {correct}/{total} | Latency: {elapsed:.2f}ms", flush=True)
+                        print(f"[NODE3] Progress: {current_count} batches | Avg Loss ({LOG_INTERVAL} steps): {avg_loss:.4f} | Correct: {correct}/{total} | Latency: {elapsed:.1f}ms", flush=True)
                         interval_loss_sum = 0.0
+                    elif current_count == 1:
+                        print(f"[NODE3] Progress: {current_count} batches | Loss: {batch_loss:.4f} | Correct: {correct}/{total} | First Latency: {elapsed:.1f}ms", flush=True)
 
                 return jsonify({
                     "status": "success",

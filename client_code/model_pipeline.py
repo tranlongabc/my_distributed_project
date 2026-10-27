@@ -18,6 +18,11 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from flask import Flask, jsonify, request
 
+#docker-compose up raspberry_pi_node_3
+#docker-compose up raspberry_pi_node_2
+#docker-compose up raspberry_pi_node_1
+
+
 # -----------------------------------------------------------------------------
 # 1. CẤU HÌNH HỆ THỐNG & TỰ ĐỘNG NHẬN DIỆN MÔI TRƯỜNG (DOCKER VS MÁY THẬT)
 # -----------------------------------------------------------------------------
@@ -28,8 +33,8 @@ app = Flask(__name__)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-IP_NODE_2 = os.getenv("IP_NODE_2", "raspberry_pi_node_2")
-IP_NODE_3 = os.getenv("IP_NODE_3", "raspberry_pi_node_3")
+IP_NODE_2 = os.getenv("IP_NODE_2", "192.168.0.101")
+IP_NODE_3 = os.getenv("IP_NODE_3", "192.168.0.103")
 NODE_ROLE = os.getenv("NODE_ROLE", "node1").lower()
 PORT = int(os.getenv("PORT", 5000))
 
@@ -181,8 +186,10 @@ if NODE_ROLE in ["node2", "node3"]:
                     
                     if current_count % LOG_INTERVAL == 0:
                         avg_loss = interval_loss_sum / LOG_INTERVAL
-                        print(f"[NODE2] Progress: {current_count} batches | Avg Loss: {avg_loss:.4f} | Latency: {elapsed:.2f}ms", flush=True)
+                        print(f"[NODE2] Progress: {current_count} batches | Avg Loss ({LOG_INTERVAL} steps): {avg_loss:.4f} | Latency: {elapsed:.2f}ms", flush=True)
                         interval_loss_sum = 0.0
+                    elif current_count == 1:
+                        print(f"[NODE2] Progress: {current_count} batches | Loss: {batch_loss:.4f} | First Latency: {elapsed:.2f}ms", flush=True)
 
                 return jsonify({
                     "status": "success",
@@ -218,8 +225,10 @@ if NODE_ROLE in ["node2", "node3"]:
                     
                     if current_count % LOG_INTERVAL == 0:
                         avg_loss = interval_loss_sum / LOG_INTERVAL
-                        print(f"[NODE3] Progress: {current_count} batches | Avg Loss: {avg_loss:.4f} | Correct: {correct}/{total} | Latency: {elapsed:.2f}ms", flush=True)
+                        print(f"[NODE3] Progress: {current_count} batches | Avg Loss ({LOG_INTERVAL} steps): {avg_loss:.4f} | Correct: {correct}/{total} | Latency: {elapsed:.1f}ms", flush=True)
                         interval_loss_sum = 0.0
+                    elif current_count == 1:
+                        print(f"[NODE3] Progress: {current_count} batches | Loss: {batch_loss:.4f} | Correct: {correct}/{total} | First Latency: {elapsed:.1f}ms", flush=True)
 
                 return jsonify({
                     "status": "success",
